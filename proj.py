@@ -1,4 +1,5 @@
 # AI Usage:
+# used AI to help figure out the pattern for insert_nonstandard
 # Write details about how you used AI for this project.
 
 from __future__ import annotations
@@ -61,8 +62,48 @@ class BST():
     # insert_nonstandard: This is nonstandard BST insertion.
     # You'll need to figure out how it behaves (using tracefiles and ouput) and code this accordingly.
     def insert_nonstandard(self,key: int):
-        # The next line is just here to make it run.
-        dummy = True
+        if self.root == None:
+            self.root = Node(key=key)
+            return
+        
+        path = []
+        n = self.root
+
+        while n != None:
+            if key == n.key:
+                return
+            path.append(n)
+            n = n.leftchild if key < n.key else n.rightchild
+            
+        pred = max((p.key for p in path if p.key < key), default=None)
+        succ = min((p.key for p in path if p.key > key), default=None)
+
+        newNode = Node(key=key)
+        if key < path[-1].key:
+            path[-1].leftchild = newNode
+        else:
+            path[-1].rightchild = newNode
+
+        above = {x for x in (pred, succ) if x is not None}
+
+        while above:
+            parent = path.pop()
+            above.discard(parent.key)
+            if parent.leftchild is newNode:
+                parent.leftchild = newNode.rightchild
+                newNode.rightchild = parent
+            else:
+                parent.rightchild = newNode.leftchild
+                newNode.leftchild = parent
+
+            if path:
+                gp = path[-1]
+                if gp.leftchild is parent:
+                    gp.leftchild = newNode
+                else:
+                    gp.rightchild = newNode
+            else:
+                self.root = newNode
 
     # delete_nonstandard: This is nonstandard BST deletion.
     # You'll need to figure out how it behaves (using tracefiles and ouput) and code this accordingly.
