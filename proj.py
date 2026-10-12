@@ -1,5 +1,5 @@
 # AI Usage:
-# used AI to help figure out the pattern for insert_nonstandard
+# used AI to help figure out the pattern for insert_nonstandard and del
 # Write details about how you used AI for this project.
 
 from __future__ import annotations
@@ -85,26 +85,7 @@ class BST():
             path[-1].rightchild = newNode
 
         above = {x for x in (pred, succ) if x is not None}
-
-        # while above:
-        #     parent = path.pop()
-        #     above.discard(parent.key)
-        #     if parent.leftchild is newNode:
-        #         parent.leftchild = newNode.rightchild
-        #         newNode.rightchild = parent
-        #     else:
-        #         parent.rightchild = newNode.leftchild
-        #         newNode.leftchild = parent
-
-        #     if path:
-        #         gp = path[-1]
-        #         if gp.leftchild is parent:
-        #             gp.leftchild = newNode
-        #         else:
-        #             gp.rightchild = newNode
-        #     else:
-        #         self.root = newNode
-
+        
         last = None
         dir = None
         while above:
@@ -184,13 +165,65 @@ class BST():
     # delete_nonstandard: This is nonstandard BST deletion.
     # You'll need to figure out how it behaves (using tracefiles and ouput) and code this accordingly.
     def delete_nonstandard(self,key: int):
-        # The next line is just here to make it run.
-        dummy = True
+        def size(n):
+            return 0 if n is None else 1 + size(n.leftchild) + size(n.rightchild)
+
+        n = self.root
+        parent = None
+
+        while n is not None and n.key != key:
+            parent = n
+            n = n.leftchild if key < n.key else n.rightchild
+        if n is None:
+            return
+
+        if n.leftchild is None or n.rightchild is None:
+            child = n.leftchild if n.leftchild is not None else n.rightchild
+            if parent is None:
+                self.root = child
+            elif parent.leftchild is n:
+                parent.leftchild = child
+            else:
+                parent.rightchild = child
+            return
+
+        if size(n.leftchild) >= size(n.rightchild):
+            dn_parent = n
+            x = n.leftchild
+            while x.rightchild is not None:
+                dn_parent = x
+                x = x.rightchild
+            n.key = x.key
+
+            if dn_parent is n:
+                dn_parent.leftchild = x.leftchild
+            else:
+                dn_parent.rightchild = x.leftchild
+        else:
+            dn_parent = n
+            x = n.rightchild
+            while x.leftchild is not None:
+                dn_parent = x
+                x = x.leftchild
+            n.key = x.key
+
+            if dn_parent is n:
+                dn_parent.rightchild = x.rightchild
+            else:
+                dn_parent.leftchild = x.rightchild
 
     # Search for a key.
     # You'll need to figure out what it returns (using tracefiles and output) and code this accordingly.
     def search(self,key: int) -> int:
-        # The next line is just here to make it run.
-        # You'll need to figure out what is being returned.
+        n = self.root
         returnvalue = 0
+        while n is not None:
+            if key == n.key:
+                return returnvalue
+            if key < n.key:
+                returnvalue += 1
+                n = n.leftchild
+            else:
+                returnvalue -= 1
+                n = n.rightchild
         return returnvalue
