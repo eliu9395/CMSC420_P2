@@ -86,16 +86,39 @@ class BST():
 
         above = {x for x in (pred, succ) if x is not None}
 
+        # while above:
+        #     parent = path.pop()
+        #     above.discard(parent.key)
+        #     if parent.leftchild is newNode:
+        #         parent.leftchild = newNode.rightchild
+        #         newNode.rightchild = parent
+        #     else:
+        #         parent.rightchild = newNode.leftchild
+        #         newNode.leftchild = parent
+
+        #     if path:
+        #         gp = path[-1]
+        #         if gp.leftchild is parent:
+        #             gp.leftchild = newNode
+        #         else:
+        #             gp.rightchild = newNode
+        #     else:
+        #         self.root = newNode
+
+        last = None
+        dir = None
         while above:
             parent = path.pop()
             above.discard(parent.key)
             if parent.leftchild is newNode:
                 parent.leftchild = newNode.rightchild
                 newNode.rightchild = parent
+                dir = 'R'
             else:
                 parent.rightchild = newNode.leftchild
                 newNode.leftchild = parent
-
+                dir = 'L'
+            last = parent
             if path:
                 gp = path[-1]
                 if gp.leftchild is parent:
@@ -104,6 +127,59 @@ class BST():
                     gp.rightchild = newNode
             else:
                 self.root = newNode
+
+        if dir == 'R':
+            far = 'rightchild'
+            near = 'leftchild'
+        else:
+            far = 'leftchild'
+            near = 'rightchild'
+        p_node = newNode
+        dist = far
+        x = last
+        while x is not None:
+            if far == 'rightchild':
+                c = x.rightchild
+            else:
+                c = x.leftchild
+
+            while c is not None:
+                if near == 'leftchild':
+                    if c.leftchild is None:
+                        break
+                else:
+                    if c.rightchild is None:
+                        break
+
+                if far == 'rightchild':
+                    x.rightchild = c.leftchild
+                else:
+                    x.leftchild = c.rightchild
+
+                if near == 'leftchild':
+                    c.leftchild = x
+                else:
+                    c.rightchild = x
+    
+                if dist == 'rightchild':
+                    p_node.rightchild = c
+                else:
+                    p_node.leftchild = c
+    
+                p_node = c
+                dist = near
+                if far == 'rightchild':
+                    c = x.rightchild
+                else:
+                    c = x.leftchild
+
+            p_node = x
+            dist = far
+
+            if far == 'rightchild':
+                x = x.rightchild
+            else:
+                x = x.leftchild
 
     # delete_nonstandard: This is nonstandard BST deletion.
     # You'll need to figure out how it behaves (using tracefiles and ouput) and code this accordingly.
